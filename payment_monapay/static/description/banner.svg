@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="450" viewBox="0 0 1200 450">
+  <rect width="1200" height="450" fill="#172554"/>
+  <circle cx="1020" cy="80" r="210" fill="#0ea5e9" opacity=".22"/>
+  <circle cx="1110" cy="380" r="260" fill="#38bdf8" opacity=".14"/>
+  <text x="90" y="195" font-family="Arial, sans-serif" font-size="76" font-weight="700" fill="#ffffff">MONA Pay for Odoo</text>
+  <text x="94" y="265" font-family="Arial, sans-serif" font-size="30" fill="#7dd3fc">Dynamic VietQR · Signed webhooks · Auto confirmation</text>
+  <text x="94" y="330" font-family="Arial, sans-serif" font-size="25" fill="#e0f2fe">Funds go directly to your bank account.</text>
+</svg>

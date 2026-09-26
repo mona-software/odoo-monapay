@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="redirect_form" name="MONA Pay Redirect Form">
+        <form t-att-action="api_url" method="post">
+            <input type="hidden" name="token" t-att-value="token"/>
+        </form>
+    </template>
+
+    <template id="payment_page" name="MONA Pay VietQR Payment">
+        <t t-call="website.layout">
+            <div class="container py-5">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-7 col-lg-5">
+                        <div class="card shadow-sm text-center">
+                            <div class="card-body p-4">
+                                <h1 class="h3 mb-2">MONA Pay</h1>
+                                <p class="text-muted mb-4">Scan the VietQR code to transfer the exact amount and content.</p>
+                                <img t-att-src="tx.monapay_qr_data_url"
+                                     class="img-fluid border rounded p-2 mb-3"
+                                     style="max-width: 360px"
+                                     alt="MONA Pay dynamic VietQR"/>
+                                <dl class="row text-start mb-3">
+                                    <dt class="col-5">Amount</dt>
+                                    <dd class="col-7"><span t-out="tx.amount"/> <span t-out="tx.currency_id.name"/></dd>
+                                    <dt class="col-5">Transfer content</dt>
+                                    <dd class="col-7"><strong t-out="tx.monapay_order_code"/></dd>
+                                    <t t-if="tx.monapay_virtual_account_number">
+                                        <dt class="col-5">Account</dt>
+                                        <dd class="col-7" t-out="tx.monapay_virtual_account_number"/>
+                                    </t>
+                                </dl>
+                                <div class="alert alert-info mb-0"
+                                     data-monapay-status="1"
+                                     t-att-data-status-url="status_url"
+                                     t-att-data-return-url="return_url">
+                                    Waiting for bank confirmation… This page updates automatically.
+                                </div>
+                                <p class="small text-muted mt-3 mb-0">
+                                    Money goes directly to the merchant's bank account. MONA Pay does not hold funds.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>
+

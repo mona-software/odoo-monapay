@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="payment_method_monapay" model="payment.method">
+        <field name="name">MONA Pay</field>
+        <field name="code">monapay</field>
+        <field name="sequence">80</field>
+        <field name="active">True</field>
+    </record>
+
+    <record id="payment_provider_monapay" model="payment.provider">
+        <field name="name">MONA Pay</field>
+        <field name="code">monapay</field>
+        <field name="state">disabled</field>
+        <field name="is_published">False</field>
+        <field name="redirect_form_view_id" ref="payment_monapay.redirect_form"/>
+        <field name="payment_method_ids" eval="[(6, 0, [ref('payment_monapay.payment_method_monapay')])]"/>
+    </record>
+</odoo>

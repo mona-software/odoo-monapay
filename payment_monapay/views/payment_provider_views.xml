@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payment_provider_form_monapay" model="ir.ui.view">
+        <field name="name">payment.provider.form.monapay</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="MONA Pay API" invisible="code != 'monapay'">
+                    <group>
+                        <field name="monapay_api_base_url" placeholder="https://api.monapay.vn"/>
+                        <field name="monapay_client_id"/>
+                        <field name="monapay_client_secret" password="True"/>
+                        <field name="monapay_webhook_secret" password="True"/>
+                    </group>
+                    <group>
+                        <field name="monapay_owner_number"/>
+                        <field name="monapay_owner_type"/>
+                        <field name="monapay_merchant_id"/>
+                        <field name="monapay_terminal_id"/>
+                        <field name="monapay_va_prefix"/>
+                        <field name="monapay_beneficiary_name"/>
+                    </group>
+                    <group colspan="2" string="Webhook">
+                        <field name="monapay_webhook_url" readonly="True" widget="CopyClipboardChar"/>
+                        <div class="text-muted">
+                            Configure this URL in MONA Pay with HMAC-SHA256 authentication.
+                        </div>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
+
