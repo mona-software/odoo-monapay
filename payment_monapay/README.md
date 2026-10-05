@@ -1,16 +1,19 @@
-# MONA Pay for Odoo 17/18
+# MONA Pay for Odoo
 
-Provider chuyển khoản ngân hàng tự động cho Odoo Website/eCommerce: VietQR động đúng số tiền/nội dung, tài khoản ảo và webhook HMAC-SHA256. Tiền vào thẳng tài khoản của merchant; MONA Pay không giữ tiền.
+Payment provider for Odoo 17/18 Website/eCommerce: customers pay by bank transfer with a dynamic VietQR for the exact amount, and an HMAC-SHA256 signed MONA Pay webhook marks the transaction done.
 
-## Cài đặt / Configuration
+## Install
 
-Chép thư mục này vào `addons_path`, cập nhật Apps List và cài **MONA Pay**. Trong Payment Providers, nhập client ID, client secret, webhook secret và thông tin QR; chép webhook URL hiển thị sang MONA Pay, sau đó enable/publish provider.
+Copy this directory into your Odoo `addons_path`, update the Apps list and install **MONA Pay**. The module depends on `payment` and `website_sale`, and only supports VND.
 
-Copy this directory into the Odoo `addons_path`, update the Apps List and install **MONA Pay**. Configure the client ID, client secret, webhook secret and QR profile, copy the displayed webhook URL to MONA Pay, then enable and publish the provider.
+## Configuration
 
-Tài liệu / Documentation: https://monapay.vn · https://monapay.vn/docs
+In **Accounting → Configuration → Payment Providers → MONA Pay**, enter the client ID, client secret, webhook secret and VietQR fields (owner number and type, merchant ID, terminal ID, virtual account prefix, beneficiary name). Copy the displayed **Webhook URL** into MONA Pay with signature type `HMAC_SHA256`, then enable and publish the provider.
 
-Kiểm thử / Tests: xem `../README.md` trong source repository hoặc chạy Odoo với `--test-tags=/payment_monapay`.
+API reference: [monapay.vn/docs](https://monapay.vn/docs). Full instructions and tests: [github.com/mona-software/odoo-monapay](https://github.com/mona-software/odoo-monapay).
 
-License: MIT.
+## License
 
+MIT. See [LICENSE](LICENSE).
+
+**MONA Pay is part of MONA Cloud by The MONA Group.**

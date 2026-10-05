@@ -1,59 +1,63 @@
-# MONA Pay for Odoo 17/18
+# MONA Pay for Odoo
 
-Module thanh toán chuyển khoản MONA Pay cho Odoo Website/eCommerce. Khách chọn **Chuyển khoản MONA Pay (VietQR)**, quét VietQR động đúng số tiền/nội dung; webhook hợp lệ sẽ đánh dấu transaction `done` và Odoo tiếp tục xác nhận đơn bán.
+Odoo 17/18 payment provider module (`payment_monapay`) that lets Odoo Website/eCommerce customers pay by bank transfer with a dynamic VietQR, and marks the payment transaction done when a signed MONA Pay webhook confirms the transfer.
 
-MONA Pay xác nhận chuyển khoản ngân hàng tự động (VietQR động, tài khoản ảo, webhook) — tiền vào thẳng tài khoản của bạn, MONA Pay không giữ tiền. Ngân hàng hỗ trợ: xem [monapay.vn/ngan-hang](https://monapay.vn/ngan-hang).
+## Requirements
 
-## Cài đặt
+- Odoo 17 or 18 with the `payment` and `website_sale` modules
+- Python `requests` (already an Odoo dependency)
+- A company currency or pricelist in `VND`; the provider only supports VND, whole-number amounts
+- A MONA Pay account with API client credentials, VietQR/virtual-account details and a webhook secret
+- HTTPS and an NTP-synchronised clock in production (webhooks outside a five-minute window are rejected)
 
-1. Chép `payment_monapay/` vào một thư mục trong `addons_path` của Odoo 17 hoặc 18.
-2. Cập nhật Apps List, tìm **MONA Pay**, rồi cài module.
-3. Vào **Accounting / Configuration / Payment Providers / MONA Pay**.
-4. Nhập `client_id`, `client_secret`, webhook secret và thông tin QR/VA trong hồ sơ MONA Pay.
-5. Chép **Webhook URL** từ form Odoo sang MONA Pay, chọn HMAC-SHA256, sau đó bật provider và publish trên website.
+## Install
 
-Không commit credential. Production phải dùng HTTPS và đồng bộ giờ hệ thống (NTP).
+1. Copy the `payment_monapay/` directory into a folder on your Odoo `addons_path`.
+2. Update the Apps list, search for **MONA Pay** and install the module.
 
-## Luồng chạy
+## Configuration
 
-1. Odoo đổi `client_id` + `client_secret` lấy Bearer token.
-2. Odoo gọi `POST /api/v1/acb/qr-payment/generate`, gắn `DH<transaction_id>` vào nội dung chuyển khoản.
-3. Trang checkout hiển thị QR và poll trạng thái mỗi 3 giây.
-4. MONA Pay POST payload phẳng tới `/payment/monapay/webhook` với `X-Mona-Timestamp` và `X-Mona-Signature`.
-5. Module kiểm HMAC trên raw body, cửa sổ 5 phút, mã giao dịch, số tiền và nội dung/tài khoản ảo trước khi gọi `_set_done()`.
+Open **Accounting → Configuration → Payment Providers → MONA Pay** and fill in:
 
-## Kiểm thử
+| Field | Notes |
+| --- | --- |
+| API base URL | Defaults to `https://api.monapay.vn`; must use HTTPS |
+| Client ID, Client secret | MONA Pay API client credentials |
+| Webhook secret | Shared secret for webhook signatures |
+| Owner number, Owner type | VietQR beneficiary account; type `ORG` or `PER` |
+| Merchant ID, Terminal ID | From your MONA Pay VietQR setup |
+| Virtual account prefix | `virtualAccountPrefix` sent with each QR |
+| Beneficiary name | Name shown on the QR |
+| Webhook URL | Read-only, `<web.base.url>/payment/monapay/webhook` |
 
-Test lõi không cần Odoo:
+Copy the **Webhook URL** into MONA Pay, choose `HMAC_SHA256` as the signature type, then enable the provider and publish it on the website. Credential fields are restricted to system administrators; do not commit them anywhere.
+
+## Usage
+
+1. Odoo exchanges the client ID and client secret for a bearer token (`POST /api/v1/oauth/token`) and caches it until shortly before it expires.
+2. At checkout Odoo calls `POST /api/v1/acb/qr-payment/generate` with order code and transfer memo `DH<transaction_id>`, and sets the transaction to pending.
+3. The payment page shows the QR and polls `/payment/monapay/status/<token>` every 3 seconds.
+4. MONA Pay posts a flat JSON payload to `/payment/monapay/webhook` with `X-Mona-Timestamp` and `X-Mona-Signature` headers.
+5. The module verifies `sha256=HMAC_SHA256(timestamp + "." + raw_body)` with a 300-second window, accepts only incoming transactions, finds the transaction by the `DH<id>` memo or the virtual account number, rejects reused transaction codes, keeps underpaid transactions pending, and otherwise calls `_set_done()`.
+
+API reference: [monapay.vn/docs](https://monapay.vn/docs).
+
+## Development
+
+Core tests (signature, memo parsing, amount rules) run without Odoo:
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
-Test tích hợp `TransactionCase` trong môi trường Odoo đã cài dependencies:
+Integration tests (`TransactionCase`) need an Odoo environment with its dependencies installed:
 
 ```bash
 odoo-bin -d monapay_test --addons-path=addons,. -i payment_monapay --test-enable --stop-after-init --test-tags=/payment_monapay
 ```
-
-## Ảnh marketplace
-
-- `docs/screenshot-checkout.png` — TODO: màn hình chọn MONA Pay.
-- `docs/screenshot-vietqr.png` — TODO: trang VietQR động.
-- `docs/screenshot-config.png` — TODO: form cấu hình (che toàn bộ secret).
-
-## English
-
-This Odoo 17/18 payment provider adds automatic bank-transfer confirmation with dynamic VietQR. Funds go directly to the merchant's bank account; MONA Pay does not hold funds.
-
-Install `payment_monapay` in your Odoo addons path, configure the client ID, client secret, webhook secret and QR profile fields, copy the displayed webhook URL to MONA Pay, then enable and publish the provider. The checkout shows an exact-amount QR; the signed flat webhook verifies timestamp, amount, order content and transaction id before completing the Odoo transaction.
-
-Documentation: [monapay.vn](https://monapay.vn) · [monapay.vn/docs](https://monapay.vn/docs)
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
 
 **MONA Pay is part of MONA Cloud by The MONA Group.**
-
-**MONA Pay thuộc bộ MONA Cloud của The MONA Group.**
